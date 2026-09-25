@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: nutrigo-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:?Copy .env.example to .env and set POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?Set POSTGRES_SUPERUSER_PASSWORD in .env}
+      POSTGRES_DB: postgres
+      NUTRIGO_DB_NAME: ${NUTRIGO_DB_NAME:?Set NUTRIGO_DB_NAME in .env}
+      NUTRIGO_DB_USER: ${NUTRIGO_DB_USER:?Set NUTRIGO_DB_USER in .env}
+      NUTRIGO_DB_PASSWORD: ${NUTRIGO_DB_PASSWORD:?Set NUTRIGO_DB_PASSWORD in .env}
+      KEYCLOAK_DB_NAME: ${KEYCLOAK_DB_NAME:?Set KEYCLOAK_DB_NAME in .env}
+      KEYCLOAK_DB_USER: ${KEYCLOAK_DB_USER:?Set KEYCLOAK_DB_USER in .env}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Set KEYCLOAK_DB_PASSWORD in .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.4
+    container_name: nutrigo-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?Set KEYCLOAK_ADMIN in .env}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME:?Set KEYCLOAK_DB_NAME in .env}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:?Set KEYCLOAK_DB_USER in .env}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Set KEYCLOAK_DB_PASSWORD in .env}
+      KC_HOSTNAME: http://localhost:8081
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak/nutrigo-realm.json:/opt/keycloak/data/import/nutrigo-realm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nutrigo-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://postgres:5432/${NUTRIGO_DB_NAME:?Set NUTRIGO_DB_NAME in .env}
+      DB_USER: ${NUTRIGO_DB_USER:?Set NUTRIGO_DB_USER in .env}
+      DB_PASS: ${NUTRIGO_DB_PASSWORD:?Set NUTRIGO_DB_PASSWORD in .env}
+      KEYCLOAK_ISSUER_URI: http://localhost:8081/realms/nutrigo
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/nutrigo/protocol/openid-connect/certs
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+volumes:
+  postgres_data:

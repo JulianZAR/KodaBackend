@@ -1,0 +1,37 @@
+{
+  "realm": "nutrigo",
+  "enabled": true,
+  "displayName": "NutriGO",
+  "roles": {
+    "realm": [
+      { "name": "USER", "description": "Usuario final de NutriGO" },
+      { "name": "ADMIN", "description": "Administrador de NutriGO" },
+      { "name": "NUTRITIONIST", "description": "Nutricionista autorizado" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "nutrigo-angular",
+      "name": "NutriGO Angular",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "nutrigo-postman",
+      "name": "NutriGO Postman (desarrollo)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    }
+  ]
+}
