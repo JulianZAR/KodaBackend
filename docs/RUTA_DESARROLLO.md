@@ -26,7 +26,7 @@ El entorno local se ejecutará con Docker Compose y tres servicios:
 | --- | --- | --- |
 | `backend` | API Spring Boot y validación de JWT | 8080 |
 | `keycloak` | Autenticación, roles y emisión de tokens | 8081 |
-| `postgres` | Bases `nutrigo` y `keycloak` | 5432 |
+| `postgres` | Bases `nutrigo` y `keycloak` | 5433 (host) → 5432 (contenedor) |
 
 El backend se desarrollará y depurará desde IntelliJ. Docker Desktop ejecutará los servicios. Swagger, Postman y el panel de Keycloak permitirán revisar su comportamiento.
 

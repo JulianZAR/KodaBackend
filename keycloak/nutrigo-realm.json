@@ -33,5 +33,23 @@
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": true
     }
+  ],
+  "users": [
+    {
+      "username": "admin.dev",
+      "email": "admin.dev@nutrigo.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Desarrollo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "AdminDev2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN", "USER"]
+    }
   ]
 }
