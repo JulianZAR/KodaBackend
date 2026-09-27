@@ -75,6 +75,15 @@ registro que mantener. `/api/users` deja de ser un endpoint de registro y
 pasa a ser el endpoint de perfil (consulta y completar datos como estatura,
 peso inicial y meta tras el primer login).
 
+**Decisión de roles elevados (2026-09-27):** el self-registro solo otorga
+`USER` (rol por defecto del realm). `ADMIN` y `NUTRITIONIST` nunca se
+autoasignan; para el MVP/piloto se asignan manualmente desde la consola de
+administración de Keycloak. Un endpoint propio para que un `ADMIN` promueva
+usuarios a `NUTRITIONIST` (llamando al Admin REST API de Keycloak) queda
+fuera de esta fase y se retoma con el resto del backlog de "Roles"
+(prioridad Media) más adelante. El seed `admin.dev` del realm ya trae
+`ADMIN`+`USER` para pruebas de desarrollo.
+
 1. Modelar `Usuario` y `Rol` como entidades JPA (`Usuario.keycloakUserId` es el vínculo con la identidad, sin campo `password`).
 2. Crear `CalculadoraIMC` con validación de peso y estatura positivos y razonables.
 3. Definir los puertos de entrada y salida de aprovisionamiento JIT, consulta/actualización de perfil y cálculo de IMC.
