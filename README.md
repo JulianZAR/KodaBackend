@@ -41,3 +41,11 @@ docker compose down
 ```
 
 No uses `docker compose down -v` salvo que quieras eliminar completamente los datos locales de PostgreSQL y Keycloak.
+
+## Probar la API
+
+Con el entorno arriba, importa [`postman/NutriGO.postman_collection.json`](postman/NutriGO.postman_collection.json) en Postman. Corre primero `Auth > Obtener token` (usa `admin.dev` por defecto) para poblar el token de las demás peticiones; para las rutas de `Planes`/`Reportes` que requieren `ADMIN` o `NUTRITIONIST` sobre otro usuario, ajusta la variable de colección `usuarioId` con el `id` que devuelve `GET /api/users/me` del usuario destino.
+
+## Integración continua
+
+`.github/workflows/ci.yml` compila el proyecto y corre las pruebas JUnit (`mvn verify`) en cada push/PR sobre `main`, `develop` y `feature/**`. No levanta el stack de Docker Compose ni corre la colección Postman contra un entorno real: eso queda pendiente porque requiere orquestar Postgres + Keycloak con el realm importado dentro del runner, y correr `newman` contra ese entorno — un paso más de infraestructura de CI que vale la pena decidir con el equipo antes de automatizarlo.

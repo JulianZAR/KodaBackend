@@ -159,11 +159,45 @@ genera y se consulta".
 
 ### Fase 6. Seguridad, calidad y entrega
 
-1. Validar el flujo completo de autenticación y autorización con Keycloak.
-2. Ejecutar la colección Postman contra el entorno Docker.
-3. Documentar OpenAPI, decisiones de arquitectura y variables necesarias.
-4. Configurar integración continua: compilación, pruebas JUnit y pruebas Postman.
-5. Preparar la estrategia de despliegue después de validar el MVP local.
+**Estado (2026-09-27):**
+
+1. **Autenticación y autorización con Keycloak — validado.** Cada fase (3 a
+   5) se probó de punta a punta contra el stack real con JWT de Keycloak
+   genuinos (JIT, roles por defecto, permisos `ADMIN`/`NUTRITIONIST`), y
+   además quedó como regresión automatizada: `PlanControllerSecurityTest` y
+   `ReporteControllerSecurityTest` verifican con `@WebMvcTest` + Spring
+   Security Test (`jwt().authorities(...)`) que 401/403/200 se comportan
+   como se espera, sin depender de un Keycloak real corriendo durante
+   `mvn test` (el `JwtDecoder` se mockea a propósito).
+2. **Colección Postman — creada, no automatizada.** No existía ninguna en
+   el repo; se generó [`postman/NutriGO.postman_collection.json`](../postman/NutriGO.postman_collection.json)
+   cubriendo los 8 endpoints, con una petición inicial que obtiene el token
+   de Keycloak y lo reutiliza en las demás. Ejecutarla contra Docker queda
+   como paso manual (ver README), no corre todavía en CI.
+3. **Documentación — cubierta por este archivo.** Cada decisión de
+   arquitectura no obvia desde el código quedó anotada aquí mismo, fase por
+   fase, en vez de en un documento aparte que se desactualiza fácil.
+   OpenAPI ya se genera solo (`/v3/api-docs`, Swagger UI); las variables de
+   entorno están en `.env.example`.
+4. **Integración continua — parcial, a propósito.** `.github/workflows/ci.yml`
+   compila y corre las pruebas JUnit en cada push/PR. Deliberadamente NO
+   levanta docker-compose ni corre la colección Postman contra un entorno
+   real: eso requiere orquestar Postgres + Keycloak con el realm importado
+   dentro del runner de CI y correr `newman`, que es una pieza de
+   infraestructura de CI en sí misma y merece su propia decisión explícita
+   del equipo (por ejemplo, cuánto tiempo de build están dispuestos a pagar)
+   en vez de improvisarse aquí.
+5. **Estrategia de despliegue — recomendación, sin ejecutar.** El backend ya
+   es una imagen Docker autocontenida (multi-stage build), así que corre en
+   cualquier host de contenedores (Render, Railway, Fly.io, un VPS con
+   Docker). Keycloak necesita su propia instancia persistente — no conviene
+   compartir contenedor con el backend en producción — y Postgres puede ser
+   un servicio administrado (Neon, como en el proyecto viejo, u otro). El
+   Context original mencionaba Vercel para `main`, pero Vercel es para
+   despliegues serverless/Next.js: no aplica igual a un JAR de Spring Boot
+   de larga duración, así que esa parte del plan original no se trasladó
+   sin más. Ninguna acción de despliegue se ejecutó: falta decidir la
+   plataforma concreta y provisionar credenciales antes de automatizar nada.
 
 ## Reglas de implementación
 

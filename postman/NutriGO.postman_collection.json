@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "NutriGO Backend",
+    "description": "Colección para probar el backend NutriGO contra el entorno docker-compose local. Empieza por 'Auth > Obtener token' para poblar la variable bearerToken usada por el resto de las peticiones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "keycloakUrl", "value": "http://localhost:8081" },
+    { "key": "realm", "value": "nutrigo" },
+    { "key": "clientId", "value": "nutrigo-postman" },
+    { "key": "username", "value": "admin.dev" },
+    { "key": "password", "value": "AdminDev2026!" },
+    { "key": "bearerToken", "value": "" },
+    { "key": "usuarioId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Obtener token (password grant)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloakUrl}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "client_id", "value": "{{clientId}}" },
+                { "key": "grant_type", "value": "password" },
+                { "key": "username", "value": "{{username}}" },
+                { "key": "password", "value": "{{password}}" }
+              ]
+            },
+            "description": "El usuario admin.dev (ADMIN+USER) viene precargado en el realm para pruebas. Cambia username/password a las variables de collection para probar con otro usuario (por ejemplo uno con NUTRITIONIST)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('bearerToken', body.access_token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Obtener mi perfil",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+          }
+        },
+        {
+          "name": "Actualizar mi perfil (estatura + meta)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estaturaCm\": 175,\n  \"meta\": \"MANTENER\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "IMC",
+      "item": [
+        {
+          "name": "Calcular IMC (sin perfil)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/imc", "host": ["{{baseUrl}}"], "path": ["api", "imc"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pesoKg\": 70,\n  \"estaturaCm\": 175\n}"
+            }
+          }
+        },
+        {
+          "name": "Mi IMC actual (desde el perfil)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/imc/me", "host": ["{{baseUrl}}"], "path": ["api", "imc", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Progreso",
+      "item": [
+        {
+          "name": "Registrar peso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/progress", "host": ["{{baseUrl}}"], "path": ["api", "progress"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pesoKg\": 72.5\n}"
+            }
+          }
+        },
+        {
+          "name": "Mi historial de progreso",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/progress", "host": ["{{baseUrl}}"], "path": ["api", "progress"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Planes",
+      "item": [
+        {
+          "name": "Mi plan vigente",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/plans/me", "host": ["{{baseUrl}}"], "path": ["api", "plans", "me"] }
+          }
+        },
+        {
+          "name": "Asignar plan a un usuario (requiere ADMIN o NUTRITIONIST)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plans", "{{usuarioId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Plan fase 1\",\n  \"objetivo\": \"PERDER_PESO\",\n  \"descripcion\": \"5 comidas al dia, deficit moderado\"\n}"
+            },
+            "description": "Reemplaza el usuarioId de la variable de collection por el id interno (campo 'id' de GET /api/users/me) del usuario destino, y usa un token con rol ADMIN o NUTRITIONIST."
+          }
+        },
+        {
+          "name": "Consultar plan de un usuario (requiere ADMIN o NUTRITIONIST)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plans", "{{usuarioId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Generar mi reporte",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api", "reports"] }
+          }
+        },
+        {
+          "name": "Mis reportes",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api", "reports"] }
+          }
+        },
+        {
+          "name": "Reportes de un usuario (requiere ADMIN o NUTRITIONIST)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "{{usuarioId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
