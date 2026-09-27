@@ -84,7 +84,7 @@ fuera de esta fase y se retoma con el resto del backlog de "Roles"
 (prioridad Media) más adelante. El seed `admin.dev` del realm ya trae
 `ADMIN`+`USER` para pruebas de desarrollo.
 
-1. Modelar `Usuario` y `Rol` como entidades JPA (`Usuario.keycloakUserId` es el vínculo con la identidad, sin campo `password`).
+1. Modelar `Usuario` como entidad JPA (`Usuario.keycloakUserId` es el vínculo con la identidad, sin campo `password` ni FK a un `Rol`: los roles viven exclusivamente en Keycloak para no mantener una copia que se pueda desincronizar).
 2. Crear `CalculadoraIMC` con validación de peso y estatura positivos y razonables.
 3. Definir los puertos de entrada y salida de aprovisionamiento JIT, consulta/actualización de perfil y cálculo de IMC.
 4. Implementar los casos de uso y el adaptador JPA.
