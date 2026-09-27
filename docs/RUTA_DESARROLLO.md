@@ -60,11 +60,26 @@ El backend se desarrollará y depurará desde IntelliJ. Docker Desktop ejecutar�
 
 ### Fase 3. Piloto Usuario + IMC
 
-1. Modelar `Usuario` y `Rol` como entidades JPA.
+**Decisión de registro (2026-09-27):** el registro de cuentas ocurre en Keycloak
+(self-registro habilitado en el realm, `registrationAllowed: true`), no en el
+backend. El backend no crea usuarios en Keycloak ni implementa un endpoint de
+"crear cuenta con contraseña". En su lugar, aplica *aprovisionamiento JIT
+(just-in-time)*: en la primera petición autenticada con un `keycloakUserId`
+que no existe todavía en `nutrigo`, crea automáticamente la fila `Usuario`
+correspondiente antes de continuar. Esto se eligió sobre que el backend
+orqueste el registro vía Keycloak Admin API porque dejar el registro 100% en
+Keycloak permite agregar login social (Google u otros) más adelante sin tocar
+el backend: cualquier proveedor de identidad configurado en el realm dispara
+el mismo flujo JIT en la primera petición, así que no hay dos caminos de
+registro que mantener. `/api/users` deja de ser un endpoint de registro y
+pasa a ser el endpoint de perfil (consulta y completar datos como estatura,
+peso inicial y meta tras el primer login).
+
+1. Modelar `Usuario` y `Rol` como entidades JPA (`Usuario.keycloakUserId` es el vínculo con la identidad, sin campo `password`).
 2. Crear `CalculadoraIMC` con validación de peso y estatura positivos y razonables.
-3. Definir los puertos de entrada y salida de registro y cálculo de IMC.
+3. Definir los puertos de entrada y salida de aprovisionamiento JIT, consulta/actualización de perfil y cálculo de IMC.
 4. Implementar los casos de uso y el adaptador JPA.
-5. Construir DTOs, controladores y documentación Swagger para el contrato existente de usuarios e IMC.
+5. Construir DTOs, controladores y documentación Swagger para el contrato de perfil de usuario e IMC.
 6. Proteger los endpoints con JWT de Keycloak y aplicar autorización por rol cuando corresponda.
 7. Escribir pruebas unitarias de la calculadora y pruebas de los casos de uso con mocks.
 

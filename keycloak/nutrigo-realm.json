@@ -2,12 +2,31 @@
   "realm": "nutrigo",
   "enabled": true,
   "displayName": "NutriGO",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "verifyEmail": false,
   "roles": {
     "realm": [
       { "name": "USER", "description": "Usuario final de NutriGO" },
       { "name": "ADMIN", "description": "Administrador de NutriGO" },
-      { "name": "NUTRITIONIST", "description": "Nutricionista autorizado" }
+      { "name": "NUTRITIONIST", "description": "Nutricionista autorizado" },
+      {
+        "name": "default-roles-nutrigo",
+        "description": "Rol por defecto de todo usuario nuevo, incluidos los que se autorregistran en Keycloak (login social incluido)",
+        "composite": true,
+        "clientRole": false,
+        "composites": {
+          "realm": ["USER", "offline_access"]
+        }
+      }
     ]
+  },
+  "defaultRole": {
+    "name": "default-roles-nutrigo",
+    "composite": true,
+    "clientRole": false
   },
   "clients": [
     {
