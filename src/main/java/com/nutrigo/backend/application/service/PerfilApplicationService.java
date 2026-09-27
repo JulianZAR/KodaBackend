@@ -30,9 +30,9 @@ public class PerfilApplicationService implements ObtenerPerfilUseCase, Actualiza
 
     @Override
     public Usuario actualizarPerfil(UUID keycloakUserId, String email, String nombre,
-                                     BigDecimal estaturaCm, BigDecimal pesoKg, Meta meta) {
+                                     BigDecimal estaturaCm, Meta meta) {
         Usuario usuario = obtenerOCrearPerfil(keycloakUserId, email, nombre);
-        usuario.actualizarDatosFisicos(estaturaCm, pesoKg, meta);
+        usuario.actualizarEstaturaYMeta(estaturaCm, meta);
         return usuarioRepositoryPort.guardar(usuario);
     }
 

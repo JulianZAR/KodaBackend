@@ -59,17 +59,17 @@ class PerfilApplicationServiceTest {
     }
 
     @Test
-    void actualizaEstaturaPesoYMeta() {
+    void actualizaEstaturaYMetaSinTocarElPeso() {
         UUID keycloakUserId = UUID.randomUUID();
         Usuario existente = new Usuario(keycloakUserId, "ana@nutrigo.local", "Ana");
         when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)).thenReturn(Optional.of(existente));
         when(usuarioRepositoryPort.guardar(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         Usuario usuario = service.actualizarPerfil(keycloakUserId, "ana@nutrigo.local", "Ana",
-                BigDecimal.valueOf(165), BigDecimal.valueOf(60), Meta.MANTENER);
+                BigDecimal.valueOf(165), Meta.MANTENER);
 
         assertThat(usuario.getEstaturaCm()).isEqualByComparingTo("165");
-        assertThat(usuario.getPesoKg()).isEqualByComparingTo("60");
+        assertThat(usuario.getPesoKg()).isNull();
         assertThat(usuario.getMeta()).isEqualTo(Meta.MANTENER);
     }
 }

@@ -96,10 +96,33 @@ fuera de esta fase y se retoma con el resto del backlog de "Roles"
 
 ### Fase 4. Progreso
 
-1. Modelar `RegistroProgreso` y sus relaciones.
-2. Implementar registro y consulta ordenada del historial.
-3. Mantener el IMC asociado a cada punto de progreso.
-4. Agregar pruebas, DTOs y documentación para `/api/progress`.
+**Decisión (2026-09-27):** el peso deja de poder fijarse desde
+`PUT /api/users/me`. Cada peso nuevo entra exclusivamente por
+`POST /api/progress`, que crea un `RegistroProgreso` (fecha, peso, IMC) y de
+paso actualiza `Usuario.pesoKg` como caché del último valor. Así
+`/api/progress` es la única fuente de verdad de la serie histórica de peso,
+y el perfil nunca puede quedar con un peso que no corresponda a ningún
+registro de progreso. `PUT /api/users/me` ahora solo acepta `estaturaCm` y
+`meta`.
+
+A diferencia del perfil (donde el IMC nunca se persiste, se calcula al
+vuelo), en `RegistroProgreso` el IMC sí se guarda: es una fotografía
+inmutable de un momento pasado, calculada con la estatura vigente en ese
+instante, no un valor "actual" que pueda desincronizarse. `RegistroProgreso`
+solo referencia a `Usuario` (`usuario_id`, `ManyToOne`); no hay una colección
+`List<RegistroProgreso>` en `Usuario` porque nada en el dominio necesita
+navegar en ese sentido y evita cargas accidentales del historial completo
+cada vez que se lee un perfil.
+
+Registrar progreso reutiliza el mismo aprovisionamiento JIT de Fase 3
+(`ObtenerPerfilUseCase`): si es la primera petición autenticada de ese
+usuario, el perfil se crea ahí mismo antes de validar la estatura.
+
+1. Modelar `RegistroProgreso` (JPA) y su relación `ManyToOne` hacia `Usuario`.
+2. Implementar `RegistrarProgresoUseCase` (valida estatura registrada, calcula IMC, actualiza el peso del perfil) y `ConsultarProgresoUseCase` (historial ordenado por fecha descendente).
+3. Adaptador JPA con consulta indexada por `(usuario_id, fecha DESC)`.
+4. `ProgresoController`: `POST /api/progress` y `GET /api/progress`, DTOs y Swagger.
+5. Pruebas unitarias de `ProgresoApplicationService` con mocks.
 
 ### Fase 5. Planes y reportes
 

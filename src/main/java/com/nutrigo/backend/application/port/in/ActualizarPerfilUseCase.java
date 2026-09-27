@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface ActualizarPerfilUseCase {
 
     Usuario actualizarPerfil(UUID keycloakUserId, String email, String nombre,
-                              BigDecimal estaturaCm, BigDecimal pesoKg, Meta meta);
+                              BigDecimal estaturaCm, Meta meta);
 }

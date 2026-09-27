@@ -28,12 +28,23 @@ public final class CalculadoraIMC {
     }
 
     public static void validar(BigDecimal pesoKg, BigDecimal estaturaCm) {
-        if (pesoKg == null || estaturaCm == null) {
-            throw new DatosInvalidosException("El peso y la estatura son obligatorios.");
+        validarPeso(pesoKg);
+        validarEstatura(estaturaCm);
+    }
+
+    public static void validarPeso(BigDecimal pesoKg) {
+        if (pesoKg == null) {
+            throw new DatosInvalidosException("El peso es obligatorio.");
         }
         if (pesoKg.compareTo(PESO_MINIMO_KG) < 0 || pesoKg.compareTo(PESO_MAXIMO_KG) > 0) {
             throw new DatosInvalidosException(
                     "El peso debe estar entre " + PESO_MINIMO_KG + " y " + PESO_MAXIMO_KG + " kg.");
+        }
+    }
+
+    public static void validarEstatura(BigDecimal estaturaCm) {
+        if (estaturaCm == null) {
+            throw new DatosInvalidosException("La estatura es obligatoria.");
         }
         if (estaturaCm.compareTo(ESTATURA_MINIMA_CM) < 0 || estaturaCm.compareTo(ESTATURA_MAXIMA_CM) > 0) {
             throw new DatosInvalidosException(

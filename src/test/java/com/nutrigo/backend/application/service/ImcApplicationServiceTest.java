@@ -42,7 +42,8 @@ class ImcApplicationServiceTest {
     void consultaElImcActualUsandoElPerfilGuardado() {
         UUID keycloakUserId = UUID.randomUUID();
         Usuario usuario = new Usuario(keycloakUserId, "ana@nutrigo.local", "Ana");
-        usuario.actualizarDatosFisicos(BigDecimal.valueOf(160), BigDecimal.valueOf(55), null);
+        usuario.actualizarEstaturaYMeta(BigDecimal.valueOf(160), null);
+        usuario.actualizarPeso(BigDecimal.valueOf(55));
         when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)).thenReturn(Optional.of(usuario));
 
         ResultadoImc resultado = service.consultarImcActual(keycloakUserId);

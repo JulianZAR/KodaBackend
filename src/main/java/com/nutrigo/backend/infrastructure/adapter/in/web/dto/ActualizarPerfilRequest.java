@@ -12,10 +12,6 @@ public record ActualizarPerfilRequest(
         @Schema(example = "170.0", description = "Estatura en centímetros")
         BigDecimal estaturaCm,
 
-        @NotNull
-        @Schema(example = "68.5", description = "Peso en kilogramos")
-        BigDecimal pesoKg,
-
         @Schema(description = "Meta nutricional del usuario")
         Meta meta
 ) {

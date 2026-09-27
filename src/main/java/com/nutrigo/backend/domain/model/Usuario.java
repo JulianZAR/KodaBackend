@@ -70,11 +70,15 @@ public class Usuario {
         }
     }
 
-    public void actualizarDatosFisicos(BigDecimal estaturaCm, BigDecimal pesoKg, Meta meta) {
-        CalculadoraIMC.validar(pesoKg, estaturaCm);
+    public void actualizarEstaturaYMeta(BigDecimal estaturaCm, Meta meta) {
+        CalculadoraIMC.validarEstatura(estaturaCm);
         this.estaturaCm = estaturaCm;
-        this.pesoKg = pesoKg;
         this.meta = meta;
+    }
+
+    public void actualizarPeso(BigDecimal pesoKg) {
+        CalculadoraIMC.validarPeso(pesoKg);
+        this.pesoKg = pesoKg;
     }
 
     public boolean tieneDatosFisicosCompletos() {

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/imc")
 @Tag(name = "IMC", description = "Cálculo del índice de masa corporal")
@@ -42,6 +40,6 @@ public class ImcController {
     @GetMapping("/me")
     @Operation(summary = "Calcula el IMC del usuario autenticado usando su peso y estatura guardados")
     public ImcResponse miImcActual(@AuthenticationPrincipal Jwt jwt) {
-        return ImcResponse.desde(consultarImcActualUseCase.consultarImcActual(UUID.fromString(jwt.getSubject())));
+        return ImcResponse.desde(consultarImcActualUseCase.consultarImcActual(JwtIdentidad.keycloakUserId(jwt)));
     }
 }
