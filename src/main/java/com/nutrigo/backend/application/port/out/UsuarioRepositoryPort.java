@@ -9,5 +9,7 @@ public interface UsuarioRepositoryPort {
 
     Optional<Usuario> buscarPorKeycloakUserId(UUID keycloakUserId);
 
+    Optional<Usuario> buscarPorId(UUID id);
+
     Usuario guardar(Usuario usuario);
 }

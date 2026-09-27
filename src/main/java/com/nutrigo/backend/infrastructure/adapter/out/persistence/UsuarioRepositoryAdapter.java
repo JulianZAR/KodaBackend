@@ -22,6 +22,11 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
     }
 
     @Override
+    public Optional<Usuario> buscarPorId(UUID id) {
+        return usuarioJpaRepository.findById(id);
+    }
+
+    @Override
     public Usuario guardar(Usuario usuario) {
         return usuarioJpaRepository.save(usuario);
     }

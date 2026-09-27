@@ -126,10 +126,36 @@ usuario, el perfil se crea ahí mismo antes de validar la estatura.
 
 ### Fase 5. Planes y reportes
 
-1. Modelar `PlanNutricional` y `Reporte`.
-2. Implementar los casos de uso, puertos y adaptadores necesarios.
-3. Aplicar permisos para el rol de nutricionista y administrador.
-4. Completar los endpoints `/api/reports` y los contratos asociados.
+**Decisión (2026-09-27):** `PlanNutricional` es 1-a-1 con `Usuario` (como el
+perfil, no histórico): asignarlo de nuevo reemplaza al anterior. `Reporte`
+sí es histórico (append-only, como `RegistroProgreso`): cada llamada crea
+una fila nueva, nunca se actualiza una existente. `Reporte.contenido` es un
+resumen de texto generado por `GeneradorContenidoReporte` (lógica pura,
+domain/service) a partir del perfil, el historial de progreso y el plan
+vigente del usuario en ese momento — es una fotografía, igual que el IMC en
+`RegistroProgreso`. `Reporte.tipo` es un enum (`TipoReporte`) con un único
+valor por ahora (`RESUMEN_NUTRICIONAL`); se eligió enum sobre texto libre
+para dejar espacio a más tipos después sin rediseñar la tabla.
+
+Fase 5 introduce, por primera vez, que un rol elevado actúe sobre el `id`
+de OTRO usuario (no "el mío"). Eso exigió agregar
+`UsuarioRepositoryPort.buscarPorId` y una nueva `UsuarioNoEncontradoException`
+(404) para cuando ese id no existe. Los permisos aplican el principio de
+mínimo privilegio del backlog: cualquier usuario autenticado puede ver y
+generar sus propios planes/reportes (`/me`), pero solo `ADMIN` o
+`NUTRITIONIST` pueden asignar un plan o consultar el plan/reportes de otro
+usuario (`/{usuarioId}`, protegidos con `@PreAuthorize`).
+
+Aunque la lista original de endpoints fijos solo mencionaba `/api/reports`,
+se agregó `/api/plans` como su propio recurso: un plan no es un tipo de
+reporte, y separarlos evita mezclar "algo que se asigna" con "algo que se
+genera y se consulta".
+
+1. Modelar `PlanNutricional` (JPA, 1-a-1 con `Usuario`) y `Reporte` (JPA, histórico).
+2. `GeneradorContenidoReporte`: lógica pura para construir el contenido del reporte, sin Spring.
+3. Casos de uso: `AsignarPlanUseCase`/`ConsultarPlanUseCase` y `GenerarReporteUseCase`/`ConsultarReportesUseCase`, con sus adaptadores JPA.
+4. `PlanController` (`/api/plans/me`, `/api/plans/{usuarioId}`) y `ReporteController` (`/api/reports`, `/api/reports/{usuarioId}`), con `@PreAuthorize("hasAnyRole('ADMIN','NUTRITIONIST')")` en las rutas que actúan sobre otro usuario.
+5. Pruebas unitarias del generador de contenido y de ambos servicios de aplicación con mocks.
 
 ### Fase 6. Seguridad, calidad y entrega
 
