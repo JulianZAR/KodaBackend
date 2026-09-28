@@ -2,17 +2,17 @@
 
 Backend de la aplicación NutriGO - Sistema de seguimiento nutricional personalizado con Spring Boot, PostgreSQL y arquitectura hexagonal.
 
-## 🌳 Estructura de Ramas
+## Estructura de Ramas
 
 Este repositorio implementa un flujo de trabajo Git con tres ramas principales:
 
-### 📋 Ramas
+### Ramas
 
 - **`desarrollo`**: Rama de desarrollo activo donde se integran todas las nuevas funcionalidades
 - **`preproduccion`**: Rama de pruebas pre-producción para validación final antes de desplegar
 - **`produccion`**: Rama de producción que contiene el código estable desplegado
 
-### 🔄 Flujo de Trabajo
+### Flujo de Trabajo
 
 ```
 desarrollo → preproduccion → produccion
@@ -22,7 +22,7 @@ desarrollo → preproduccion → produccion
 2. Cuando una versión está lista, se fusiona a `preproduccion` para testing
 3. Después de validar en preproducción, se fusiona a `produccion` para despliegue
 
-## 🚀 Tecnologías
+## Tecnologías
 
 - **Spring Boot** 3.5.16
 - **Java** 21
@@ -32,7 +32,7 @@ desarrollo → preproduccion → produccion
 - **Docker** y Docker Compose para contenedores
 - **Arquitectura Hexagonal** (Ports & Adapters)
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 El proyecto sigue arquitectura hexagonal con clara separación de capas:
 
@@ -40,7 +40,7 @@ El proyecto sigue arquitectura hexagonal con clara separación de capas:
 - **Application**: Casos de uso y puertos (interfaces)
 - **Infrastructure**: Adaptadores (web controllers, repositorios, configuración)
 
-## 📦 Entorno Local
+## Entorno Local
 
 El entorno local usa tres contenedores: backend, PostgreSQL y Keycloak.
 
@@ -80,15 +80,15 @@ Usuario precargado para pruebas (roles ADMIN y USER):
 - **Usuario**: `admin.dev`
 - **Contraseña**: `AdminDev2026!`
 
-⚠️ **Solo para desarrollo local**
+ **Solo para desarrollo local**
 
-## 🧪 Probar la API
+## Probar la API
 
 1. Importa `postman/NutriGO.postman_collection.json` en Postman
 2. Ejecuta `Auth > Obtener token` con las credenciales de desarrollo
 3. El token se configurará automáticamente para las demás peticiones
 
-## 🗄️ Base de Datos
+## Base de Datos
 
 Las migraciones de Flyway se ejecutan automáticamente al iniciar:
 
@@ -97,7 +97,7 @@ Las migraciones de Flyway se ejecutan automáticamente al iniciar:
 - `V3__registros_progreso.sql` - Tabla de progreso
 - `V4__planes_y_reportes.sql` - Tablas de planes y reportes
 
-## 🧹 Detener el Entorno
+## Detener el Entorno
 
 ```powershell
 # Detener sin borrar datos
@@ -111,12 +111,12 @@ docker compose down -v
 
 La planificación y fases de desarrollo están en [docs/RUTA_DESARROLLO.md](docs/RUTA_DESARROLLO.md).
 
-## 👨‍💻 Autor
+## Autor
 
 **Julian Villamizar**
 - Email: julian.villamizar200@gmail.com
 - GitHub: [@JulianZAR](https://github.com/JulianZAR)
 
-## 📝 Licencia
+## Licencia
 
 Proyecto académico - Universidad
