@@ -46,6 +46,19 @@ services:
       postgres:
         condition: service_healthy
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nutrigo-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@nutrigo.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   backend:
     build:
       context: .
