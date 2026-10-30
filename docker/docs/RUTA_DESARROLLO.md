@@ -170,7 +170,7 @@ genera y se consulta".
    como se espera, sin depender de un Keycloak real corriendo durante
    `mvn test` (el `JwtDecoder` se mockea a propósito).
 2. **Colección Postman — creada, no automatizada.** No existía ninguna en
-   el repo; se generó [`postman/NutriGO.postman_collection.json`](../postman/NutriGO.postman_collection.json)
+   el repo; se generó [`postman/NutriGO.postman_collection.json`](../../postman/NutriGO.postman_collection.json)
    cubriendo los 8 endpoints, con una petición inicial que obtiene el token
    de Keycloak y lo reutiliza en las demás. Ejecutarla contra Docker queda
    como paso manual (ver README), no corre todavía en CI.

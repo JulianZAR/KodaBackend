@@ -109,7 +109,7 @@ docker compose down -v
 
 ## 📚 Documentación Adicional
 
-La planificación y fases de desarrollo están en [docs/RUTA_DESARROLLO.md](docs/RUTA_DESARROLLO.md).
+La planificación y fases de desarrollo están en [docs/RUTA_DESARROLLO.md](docker/docs/RUTA_DESARROLLO.md).
 
 ## Autor
 
