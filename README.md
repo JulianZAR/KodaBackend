@@ -97,6 +97,25 @@ Las migraciones de Flyway se ejecutan automáticamente al iniciar:
 - `V3__registros_progreso.sql` - Tabla de progreso
 - `V4__planes_y_reportes.sql` - Tablas de planes y reportes
 
+## 🌐 Integración con API Externa
+
+El backend integra la API pública de **OpenFoodFacts** para obtener información nutricional de alimentos:
+
+**Endpoint**: `GET /api/alimentos/externo/{barcode}`
+
+**Ejemplo**:
+```bash
+GET http://localhost:8080/api/alimentos/externo/737628064502
+Authorization: Bearer {token}
+```
+
+Esta integración permite buscar productos por código de barras y obtener información nutricional completa para planes alimenticios.
+
+**Códigos de barras de ejemplo para probar**:
+- `737628064502` - Coca-Cola
+- `3017620422003` - Nutella
+- `5449000000996` - Coca-Cola Zero
+
 ## Detener el Entorno
 
 ```powershell
