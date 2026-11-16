@@ -40,8 +40,11 @@ public class ProgresoApplicationService implements RegistrarProgresoUseCase, Con
         return registroProgresoRepositoryPort.guardar(registro);
     }
 
+    /**
+     * No es readOnly: obtenerOCrearPerfil puede crear o sincronizar el usuario
+     * (aprovisionamiento JIT) y esa escritura debe confirmarse.
+     */
     @Override
-    @Transactional(readOnly = true)
     public List<RegistroProgreso> consultarHistorial(UUID keycloakUserId, String email, String nombre) {
         Usuario usuario = obtenerPerfilUseCase.obtenerOCrearPerfil(keycloakUserId, email, nombre);
         return registroProgresoRepositoryPort.buscarPorUsuarioOrdenadoDesc(usuario.getId());

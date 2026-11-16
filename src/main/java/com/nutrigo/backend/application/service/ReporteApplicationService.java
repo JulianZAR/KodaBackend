@@ -2,11 +2,13 @@ package com.nutrigo.backend.application.service;
 
 import com.nutrigo.backend.application.port.in.ConsultarReportesUseCase;
 import com.nutrigo.backend.application.port.in.GenerarReporteUseCase;
+import com.nutrigo.backend.application.port.out.NotificacionRepositoryPort;
 import com.nutrigo.backend.application.port.out.PlanNutricionalRepositoryPort;
 import com.nutrigo.backend.application.port.out.RegistroProgresoRepositoryPort;
 import com.nutrigo.backend.application.port.out.ReporteRepositoryPort;
 import com.nutrigo.backend.application.port.out.UsuarioRepositoryPort;
 import com.nutrigo.backend.domain.exception.UsuarioNoEncontradoException;
+import com.nutrigo.backend.domain.model.Notificacion;
 import com.nutrigo.backend.domain.model.PlanNutricional;
 import com.nutrigo.backend.domain.model.RegistroProgreso;
 import com.nutrigo.backend.domain.model.Reporte;
@@ -27,11 +29,14 @@ public class ReporteApplicationService implements GenerarReporteUseCase, Consult
     private final PlanNutricionalRepositoryPort planNutricionalRepositoryPort;
     private final RegistroProgresoRepositoryPort registroProgresoRepositoryPort;
     private final ReporteRepositoryPort reporteRepositoryPort;
+    private final NotificacionRepositoryPort notificacionRepositoryPort;
 
     public ReporteApplicationService(UsuarioRepositoryPort usuarioRepositoryPort,
                                       PlanNutricionalRepositoryPort planNutricionalRepositoryPort,
                                       RegistroProgresoRepositoryPort registroProgresoRepositoryPort,
-                                      ReporteRepositoryPort reporteRepositoryPort) {
+                                      ReporteRepositoryPort reporteRepositoryPort,
+                                      NotificacionRepositoryPort notificacionRepositoryPort) {
+        this.notificacionRepositoryPort = notificacionRepositoryPort;
         this.usuarioRepositoryPort = usuarioRepositoryPort;
         this.planNutricionalRepositoryPort = planNutricionalRepositoryPort;
         this.registroProgresoRepositoryPort = registroProgresoRepositoryPort;
@@ -49,6 +54,13 @@ public class ReporteApplicationService implements GenerarReporteUseCase, Consult
         String contenido = GeneradorContenidoReporte.generar(usuario, historial, plan);
         Reporte reporte = new Reporte(usuario, TipoReporte.RESUMEN_NUTRICIONAL, contenido);
         return reporteRepositoryPort.guardar(reporte);
+    }
+
+    @Override
+    public Reporte generarReporteParaPaciente(UUID usuarioId) {
+        Reporte reporte = generarReporte(usuarioId);
+        notificacionRepositoryPort.guardar(Notificacion.reporteGenerado(reporte.getUsuario()));
+        return reporte;
     }
 
     @Override

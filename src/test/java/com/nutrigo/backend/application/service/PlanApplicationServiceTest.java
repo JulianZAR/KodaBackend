@@ -1,5 +1,9 @@
 package com.nutrigo.backend.application.service;
 
+import org.mockito.ArgumentCaptor;
+import com.nutrigo.backend.domain.model.TipoNotificacion;
+import com.nutrigo.backend.domain.model.Notificacion;
+import com.nutrigo.backend.application.port.out.NotificacionRepositoryPort;
 import com.nutrigo.backend.application.port.out.PlanNutricionalRepositoryPort;
 import com.nutrigo.backend.application.port.out.UsuarioRepositoryPort;
 import com.nutrigo.backend.domain.exception.UsuarioNoEncontradoException;
@@ -15,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,11 +35,15 @@ class PlanApplicationServiceTest {
     @Mock
     private PlanNutricionalRepositoryPort planNutricionalRepositoryPort;
 
+    @Mock
+    private NotificacionRepositoryPort notificacionRepositoryPort;
+
     private PlanApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new PlanApplicationService(usuarioRepositoryPort, planNutricionalRepositoryPort);
+        service = new PlanApplicationService(usuarioRepositoryPort, planNutricionalRepositoryPort,
+                notificacionRepositoryPort);
     }
 
     @Test
@@ -73,5 +83,25 @@ class PlanApplicationServiceTest {
 
         assertThatThrownBy(() -> service.asignarPlan(usuarioId, "Plan", Meta.MANTENER, "Detalle"))
                 .isInstanceOf(UsuarioNoEncontradoException.class);
+    }
+
+    @Test
+    void notificaAlPacienteSiElPlanEsNuevoOSiSeActualiza() {
+        UUID usuarioId = UUID.randomUUID();
+        Usuario usuario = new Usuario(UUID.randomUUID(), "ana@nutrigo.local", "Ana");
+        when(usuarioRepositoryPort.buscarPorId(usuarioId)).thenReturn(Optional.of(usuario));
+        when(planNutricionalRepositoryPort.guardar(any(PlanNutricional.class))).thenAnswer(inv -> inv.getArgument(0));
+        ArgumentCaptor<Notificacion> captor = ArgumentCaptor.forClass(Notificacion.class);
+
+        when(planNutricionalRepositoryPort.buscarPorUsuarioId(usuarioId)).thenReturn(Optional.empty());
+        service.asignarPlan(usuarioId, "Plan", Meta.MANTENER, "x");
+        PlanNutricional existente = new PlanNutricional(usuario, "Plan", Meta.MANTENER, "x");
+        when(planNutricionalRepositoryPort.buscarPorUsuarioId(usuarioId)).thenReturn(Optional.of(existente));
+        service.asignarPlan(usuarioId, "Plan 2", Meta.MANTENER, "y");
+
+        verify(notificacionRepositoryPort, times(2)).guardar(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notificacion::getTipo)
+                .containsExactly(TipoNotificacion.PLAN_ASIGNADO, TipoNotificacion.PLAN_ACTUALIZADO);
+        assertThat(captor.getAllValues()).allSatisfy(n -> assertThat(n.getUsuario()).isSameAs(usuario));
     }
 }

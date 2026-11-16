@@ -1,5 +1,6 @@
 package com.nutrigo.backend.infrastructure.adapter.out.persistence;
 
+import java.util.List;
 import com.nutrigo.backend.application.port.out.PlanNutricionalRepositoryPort;
 import com.nutrigo.backend.domain.model.PlanNutricional;
 import org.springframework.stereotype.Component;
@@ -24,5 +25,10 @@ public class PlanNutricionalRepositoryAdapter implements PlanNutricionalReposito
     @Override
     public PlanNutricional guardar(PlanNutricional plan) {
         return planNutricionalJpaRepository.save(plan);
+    }
+
+    @Override
+    public List<PlanNutricional> listarTodos() {
+        return planNutricionalJpaRepository.findAll();
     }
 }

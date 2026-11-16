@@ -56,6 +56,13 @@ public class ReporteController {
                 .toList();
     }
 
+    @PostMapping("/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'NUTRITIONIST')")
+    @Operation(summary = "Genera un reporte nutricional para un usuario específico (solo ADMIN o NUTRITIONIST)")
+    public ReporteResponse generarReporteDeUsuario(@PathVariable UUID usuarioId) {
+        return ReporteResponse.desde(generarReporteUseCase.generarReporteParaPaciente(usuarioId));
+    }
+
     @GetMapping("/{usuarioId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'NUTRITIONIST')")
     @Operation(summary = "Lista los reportes de un usuario específico (solo ADMIN o NUTRITIONIST)")
