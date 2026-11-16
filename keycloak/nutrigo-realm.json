@@ -7,18 +7,37 @@
   "loginWithEmailAllowed": true,
   "resetPasswordAllowed": true,
   "verifyEmail": false,
+  "rememberMe": true,
+  "loginTheme": "nutrigo",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "es"
+  ],
+  "defaultLocale": "es",
   "roles": {
     "realm": [
-      { "name": "USER", "description": "Usuario final de NutriGO" },
-      { "name": "ADMIN", "description": "Administrador de NutriGO" },
-      { "name": "NUTRITIONIST", "description": "Nutricionista autorizado" },
+      {
+        "name": "USER",
+        "description": "Usuario final de NutriGO"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrador de NutriGO"
+      },
+      {
+        "name": "NUTRITIONIST",
+        "description": "Nutricionista autorizado"
+      },
       {
         "name": "default-roles-nutrigo",
         "description": "Rol por defecto de todo usuario nuevo, incluidos los que se autorregistran en Keycloak (login social incluido)",
         "composite": true,
         "clientRole": false,
         "composites": {
-          "realm": ["USER", "offline_access"]
+          "realm": [
+            "USER",
+            "offline_access"
+          ]
         }
       }
     ]
@@ -37,8 +56,12 @@
       "protocol": "openid-connect",
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:4200/*"],
-      "webOrigins": ["http://localhost:4200"],
+      "redirectUris": [
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       }
@@ -51,10 +74,24 @@
       "protocol": "openid-connect",
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "nutrigo-backend",
+      "name": "NutriGO Backend (cuenta de servicio)",
+      "description": "Cliente confidencial que usa el backend para gestionar roles vía Admin API. Secreto solo de desarrollo.",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "nutrigo-backend-dev-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
     }
   ],
   "users": [
     {
+      "id": "0b8f5a1e-0000-4000-8000-000000000001",
       "username": "admin.dev",
       "email": "admin.dev@nutrigo.local",
       "enabled": true,
@@ -68,7 +105,81 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["ADMIN", "USER"]
+      "realmRoles": [
+        "ADMIN",
+        "USER"
+      ]
+    },
+    {
+      "id": "0b8f5a1e-0000-4000-8000-000000000002",
+      "username": "nutricionista.dev",
+      "email": "nutricionista.dev@nutrigo.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Marta",
+      "lastName": "Rincón",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "NutriGO2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "NUTRITIONIST",
+        "USER"
+      ]
+    },
+    {
+      "id": "0b8f5a1e-0000-4000-8000-000000000003",
+      "username": "laura.dev",
+      "email": "laura.dev@nutrigo.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Laura",
+      "lastName": "Gómez",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "NutriGO2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "id": "0b8f5a1e-0000-4000-8000-000000000004",
+      "username": "nuevo.dev",
+      "email": "nuevo.dev@nutrigo.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Carlos",
+      "lastName": "Pérez",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "NutriGO2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "username": "service-account-nutrigo-backend",
+      "enabled": true,
+      "serviceAccountClientId": "nutrigo-backend",
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "query-users",
+          "manage-users",
+          "view-realm"
+        ]
+      }
     }
   ]
 }

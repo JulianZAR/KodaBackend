@@ -3,6 +3,7 @@ package com.nutrigo.backend.application.service;
 import com.nutrigo.backend.application.port.in.ActualizarPerfilUseCase;
 import com.nutrigo.backend.application.port.in.ObtenerPerfilUseCase;
 import com.nutrigo.backend.application.port.out.UsuarioRepositoryPort;
+import com.nutrigo.backend.domain.exception.OperacionNoPermitidaException;
 import com.nutrigo.backend.domain.model.Meta;
 import com.nutrigo.backend.domain.model.Usuario;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,19 @@ public class PerfilApplicationService implements ObtenerPerfilUseCase, Actualiza
     public Usuario obtenerOCrearPerfil(UUID keycloakUserId, String email, String nombre) {
         return usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)
                 .map(usuario -> sincronizarYGuardar(usuario, email, nombre))
-                .orElseGet(() -> usuarioRepositoryPort.guardar(new Usuario(keycloakUserId, email, nombre)));
+                .orElseGet(() -> crear(keycloakUserId, email, nombre));
+    }
+
+    /**
+     * Aprovisionamiento JIT. El front pide varias rutas a la vez en el primer
+     * login, así que dos peticiones pueden intentar crear el mismo usuario: el
+     * insert idempotente evita el error de clave duplicada.
+     */
+    private Usuario crear(UUID keycloakUserId, String email, String nombre) {
+        usuarioRepositoryPort.crearSiNoExiste(new Usuario(keycloakUserId, email, nombre));
+        return usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)
+                .orElseThrow(() -> new OperacionNoPermitidaException(
+                        "Ya existe otro perfil registrado con el correo " + email + "."));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.nutrigo.backend.application.service;
 
+import com.nutrigo.backend.application.port.out.NotificacionRepositoryPort;
 import com.nutrigo.backend.application.port.out.PlanNutricionalRepositoryPort;
 import com.nutrigo.backend.application.port.out.RegistroProgresoRepositoryPort;
 import com.nutrigo.backend.application.port.out.ReporteRepositoryPort;
@@ -38,12 +39,15 @@ class ReporteApplicationServiceTest {
     @Mock
     private ReporteRepositoryPort reporteRepositoryPort;
 
+    @Mock
+    private NotificacionRepositoryPort notificacionRepositoryPort;
+
     private ReporteApplicationService service;
 
     @BeforeEach
     void setUp() {
         service = new ReporteApplicationService(usuarioRepositoryPort, planNutricionalRepositoryPort,
-                registroProgresoRepositoryPort, reporteRepositoryPort);
+                registroProgresoRepositoryPort, reporteRepositoryPort, notificacionRepositoryPort);
     }
 
     @Test

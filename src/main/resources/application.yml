@@ -42,3 +42,10 @@ springdoc:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  keycloak:
+    # Admin REST API de Keycloak (gestión de roles desde la app, solo ADMIN)
+    admin:
+      base-url: ${KEYCLOAK_ADMIN_BASE_URL:http://localhost:8081}
+      realm: ${KEYCLOAK_REALM:nutrigo}
+      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:nutrigo-backend}
+      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}

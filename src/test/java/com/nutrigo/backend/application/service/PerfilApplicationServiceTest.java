@@ -1,5 +1,6 @@
 package com.nutrigo.backend.application.service;
 
+import com.nutrigo.backend.domain.exception.OperacionNoPermitidaException;
 import com.nutrigo.backend.application.port.out.UsuarioRepositoryPort;
 import com.nutrigo.backend.domain.model.Meta;
 import com.nutrigo.backend.domain.model.Usuario;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,14 +37,38 @@ class PerfilApplicationServiceTest {
     @Test
     void creaElPerfilLaPrimeraVezQueNoExiste() {
         UUID keycloakUserId = UUID.randomUUID();
-        when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)).thenReturn(Optional.empty());
-        when(usuarioRepositoryPort.guardar(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+        Usuario creado = new Usuario(keycloakUserId, "ana@nutrigo.local", "Ana");
+        when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(creado));
 
         Usuario usuario = service.obtenerOCrearPerfil(keycloakUserId, "ana@nutrigo.local", "Ana");
 
         assertThat(usuario.getKeycloakUserId()).isEqualTo(keycloakUserId);
         assertThat(usuario.getEmail()).isEqualTo("ana@nutrigo.local");
-        verify(usuarioRepositoryPort).guardar(any(Usuario.class));
+        verify(usuarioRepositoryPort).crearSiNoExiste(any(Usuario.class));
+    }
+
+    @Test
+    void siOtraPeticionLoCreoALaVezDevuelveEseMismoPerfil() {
+        // La primera búsqueda no lo ve; el insert idempotente no duplica y la
+        // segunda búsqueda devuelve el perfil creado por la otra petición.
+        UUID keycloakUserId = UUID.randomUUID();
+        Usuario creadoPorOtra = new Usuario(keycloakUserId, "ana@nutrigo.local", "Ana");
+        when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(creadoPorOtra));
+
+        assertThat(service.obtenerOCrearPerfil(keycloakUserId, "ana@nutrigo.local", "Ana")).isSameAs(creadoPorOtra);
+    }
+
+    @Test
+    void fallaConMensajeClaroSiElCorreoYaPerteneceAOtroPerfil() {
+        UUID keycloakUserId = UUID.randomUUID();
+        when(usuarioRepositoryPort.buscarPorKeycloakUserId(keycloakUserId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.obtenerOCrearPerfil(keycloakUserId, "ana@nutrigo.local", "Ana"))
+                .isInstanceOf(OperacionNoPermitidaException.class);
     }
 
     @Test
